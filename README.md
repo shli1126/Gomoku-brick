@@ -8,7 +8,7 @@ Shaochun Zheng
 Yanfan Chen  
 
 ### Overview:
-This is the repo for the project of CSE 230. In this repo, we plan to implement a variant of the classic strategy board game Gomoku, also known as Five in a Row. The outcome of the project will be a line application based on the [brick](!https://github.com/jtdaugherty/brick/) library.
+This is the repo for the project of CSE 230. In this repo, we plan to implement a variant of the classic strategy board game Gomoku, also known as Five in a Row. The outcome of the project will be a line application based on the [brick](https://github.com/jtdaugherty/brick/) library.
 
 ### Description of Five in a Row:
 The game is played on a grid board with a certain size. Players take turns to place their stones on the intersections of the grids. The goal of the game for each player is to create an unbroken row of fine stones horizontally, vertically, or diagonally. The first player to achieve this goal wins the game. 
