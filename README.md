@@ -21,6 +21,25 @@ A line application of our variant of Five in a Row based on the brick library. T
 + Online Support: Players can connect and compete with others over the internet or LAN.
 + "Throwing Knife": Each player is granted a single opportunity to remove any pieces within a specified 2x2 square area on the board, potentially disrupting the opponent's progress or clearing a path for their own victory.
 
+### Update
+Friday 12/15 Milestone 3: Demonstration
+
+#### Game logics
+The actions taken by players are recorded by a list of tuples. Each tuple represents the type (placing a stone or “booming”) and the coordinate of the action.
+When a player undoes their step, the last element of the list is deleted.
+The board is rendered by iterating the list, adding or removing stones according to the type and the coordinate of the actions. After the board has been rendered, every stone is checked whether there are four stones of the same color to its left, right, up, down, or in the diagonals.
+When implementing the online mode, we will build our own server
+
+#### UI Module
+On the main page, each user can enter their username. A player can choose the grid size of the game as well as whether they want to play locally or online.
+In a player’s turn, they can use arrow keys to move the cursor on the board, and press the enter key to place a stone on an empty intersection or press the delete key to remove all stones in the 2×2 matrix to the lower right of the cursor (called “boom”).
+
+![UIExample](https://github.com/lukechen2/cse-230-proj/assets/146805418/e769f6a4-2b88-48fe-b77d-61074532d4c4)
+
+
+#### Challenges and Expectations:
+The online version requires us to resolve some network issues. Functional language may not be a good fit for this. Therefore, we consider the network version of the project as an add-on. We do not expect to complete it before the deadline.
+
 
 ### Schedule of progress:
 Friday 11/17 Milestone 1: Registration and Proposal  
