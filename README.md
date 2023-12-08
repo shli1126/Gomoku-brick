@@ -45,3 +45,26 @@ The online version requires us to resolve some network issues. Functional langua
 Friday 11/17 Milestone 1: Registration and Proposal  
 Friday 12/1 Milestone 2: Updates  
 Friday 12/15 Milestone 3: Demonstration  
+
+### Setup:
+
+#### Install GHC Environment
+Recommend using Ubuntu 20 and [ghcup](https://www.haskell.org/ghcup/install/)
+Tested on ghc 9.2.7, stack 2.11.1
+
+#### Build
+```
+stack build
+```
+
+#### Run
+```
+stack exec gomoku
+```
+
+#### Test
+```
+stack test
+```
+
+
