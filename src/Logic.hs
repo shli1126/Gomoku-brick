@@ -1,9 +1,9 @@
-module Logic (init, reset, moveCursor, undo) where
+module Logic (init1, reset, moveCursor, undo) where
 
-import Type (Game, Board)
+import Type as T
 
-init :: Int -> [String] -> Game
-init size names = Game
+init1 :: Int -> [String] -> Game
+init1 size names = Game
   { cursor = (size `div` 2, size `div` 2)
   , board = B $ replicate size (replicate size 0)
   , players = map (\name -> Player name 1) names
@@ -26,8 +26,8 @@ moveCursor game dir = game { cursor = newCursor }
     newCursor = case dir of
       Up    -> (x, (y - 1 + size) `mod` size)
       Down  -> (x, (y + 1) `mod` size)
-      Left  -> ((x - 1 + size) `mod` size, y)
-      Right -> ((x + 1) `mod` size, y)
+      T.Left  -> ((x - 1 + size) `mod` size, y)
+      T.Right -> ((x + 1) `mod` size, y)
 
 undo :: Game -> Game
 undo game = case prev game of

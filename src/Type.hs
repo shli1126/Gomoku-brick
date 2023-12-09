@@ -1,4 +1,4 @@
-module Type (Game, Board) where
+module Type (module Type) where
 
 newtype Board = Board [[Int]]
 
