@@ -1,6 +1,6 @@
-module Main (main) where
+module Main (module Main) where
 
-import Lib
+import UI
 
 main :: IO ()
-main = someFunc
+main = startPoint

@@ -1,6 +1,9 @@
 module Type (module Type) where
 
-newtype Board = Board [[Int]]
+-- Board[i][j] == -1 : Empty slot
+-- Board[i][j] >= 0  : Player index
+-- Maybe require a newtype for Board Slot, and maybe not
+type Board = [[Int]]
 
 data Game = Game
   { cursor :: (Int, Int)
