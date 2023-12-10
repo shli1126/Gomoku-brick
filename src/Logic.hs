@@ -17,15 +17,15 @@ init1 size names = Game
   , nextPlayer = 0 -- TODO: randomize
   }
 
--- TODO: fix it
--- reset :: Game -> Game
--- reset game = game
---   { board =  replicate size (replicate size 0)
---   , players = map (\player -> player { boomsLeft = 1 }) (player game)
---   , prev = Nothing
---   }
---     where
---       size = length (board game)
+reset :: Game -> Game
+reset game = game
+  { board =  replicate size (replicate size (-1))
+  , players = map (\player -> player { boomsLeft = 2 }) (players game)
+  , prev = Nothing
+  , nextPlayer = switchPlayer game
+  }
+    where
+      size = length (board game)
 
 moveCursor :: Game -> Direction -> Game
 moveCursor game dir = game { cursor = newCursor }
@@ -47,7 +47,7 @@ dodo :: Game -> (Game, DoStatus)
 dodo game = if board game !! y !! x == -1
   then if isWin newBoard
     then (game { board = newBoard, prev = Just game, players = newPlayers}, Win)
-    else (game { board = newBoard, prev = Just game, nextPlayer = (nextPlayer game + 1) `mod` length (players game) }, Valid)
+    else (game { board = newBoard, prev = Just game, nextPlayer = switchPlayer game }, Valid)
   else (game, Invalid)
   where
     (x, y) = cursor game
@@ -56,18 +56,30 @@ dodo game = if board game !! y !! x == -1
       then player {score = score player + 1 }
       else player) (zip (players game) [0..])
 
--- TODO
--- boom :: Game -> (Game, DoStatus)
--- boom game = if boomsLeft player > 0
---   then (game { board = newBoard, prev = Just game, players = newPlayers}, Valid)
---   else (game, Invalid)
---   where
---     (x, y) = cursor game
---     newBoard = updateBoard (board game) (x, y) (-1)
---     newPlayers = map (\(player, playerIndex) -> if playerIndex == nextPlayer game
---       then player {boomsLeft = boomsLeft player - 1 }
---       else player) (zip (players game) [0..])
---     player = players game !! nextPlayer game
+-- remove all pieces in a 2x2 square 
+boom :: Game -> (Game, DoStatus)
+boom game = if boomsLeft player > 0 && x < sizex-1 && y < sizey-1
+  then (game { board = newBoard4, prev = Just game, players = newPlayers, nextPlayer = switchPlayer game}, Valid)
+  else (game, Invalid)
+  where
+    (x, y) = cursor game
+    newBoard4 = updateBoard newBoard3 (x+1,y+1) (-1)
+    newBoard3 = updateBoard newBoard2 (x+1,y) (-1)
+    newBoard2 = updateBoard newBoard1 (x,y+1) (-1)
+    newBoard1 = updateBoard (board game) (x, y) (-1)
+
+    newPlayers = map (\(player, playerIndex) -> if playerIndex == nextPlayer game
+      then player {boomsLeft = boomsLeft player - 1 }
+      else player) (zip (players game) [0..])
+    player = players game !! nextPlayer game
+    sizey = length (board game)
+    sizex = length (head (board game))
+
+switchPlayer :: Game -> Int
+switchPlayer game = (currentPlayer + 1) `mod` playerCnt
+        where 
+            currentPlayer = nextPlayer game
+            playerCnt = length (players game)
 
 updateBoard :: [[a]] -> (Int, Int) -> a -> [[a]]
 updateBoard board (x, y) player = take y board ++ [take x (board !! y) ++ [player] ++ drop (x + 1) (board !! y)] ++ drop (y + 1) board
