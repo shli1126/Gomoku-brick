@@ -10,6 +10,33 @@ Yanfan Chen
 ### Overview:
 This is the repo for the project of CSE 230. In this repo, we plan to implement a variant of the classic strategy board game Gomoku, also known as Five in a Row. The outcome of the project will be a line application based on the [brick](https://github.com/jtdaugherty/brick/) library.
 
+
+### Setup:
+
+#### Install GHC Environment
+Recommend using Ubuntu 20 and [ghcup](https://www.haskell.org/ghcup/install/)
+Tested on ghc 9.2.7, stack 2.11.1
+
+#### Build
+```
+stack build
+```
+
+#### Run
+```
+stack exec boom
+```
+
+#### Test
+```
+stack test
+```
+
+#### Development Guide
+```
+Recommend to use VSCode with extension: Haskell and Simple GHC
+```
+
 ### Description of Five in a Row:
 The game is played on a grid board with a certain size. Players take turns to place their stones on the intersections of the grids. The goal of the game for each player is to create an unbroken row of fine stones horizontally, vertically, or diagonally. The first player to achieve this goal wins the game. 
 
@@ -45,26 +72,4 @@ The online version requires us to resolve some network issues. Functional langua
 Friday 11/17 Milestone 1: Registration and Proposal  
 Friday 12/1 Milestone 2: Updates  
 Friday 12/15 Milestone 3: Demonstration  
-
-### Setup:
-
-#### Install GHC Environment
-Recommend using Ubuntu 20 and [ghcup](https://www.haskell.org/ghcup/install/)
-Tested on ghc 9.2.7, stack 2.11.1
-
-#### Build
-```
-stack build
-```
-
-#### Run
-```
-stack exec gomoku
-```
-
-#### Test
-```
-stack test
-```
-
 
