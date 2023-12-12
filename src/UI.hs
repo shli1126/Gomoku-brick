@@ -15,7 +15,7 @@ import Brick.Widgets.Core (hLimit, vLimit)
 import Brick.AttrMap (attrMap, AttrMap)
 import Brick.Util (on)
 import Graphics.Vty.Attributes (defAttr, bold, withStyle)
-import Type (Board(..))
+import Type 
 
 -- Define custom attribute for larger caption
 captionAttr :: AttrName
@@ -63,8 +63,8 @@ emptyGrid :: [[Cell]]
 emptyGrid = replicate 10 (replicate 10 Empty)
 
 -- try to fit the board data type into the UI
-uiRepresentation :: Type.Board -> [[Cell]]
-uiRepresentation (Type.Board board) =
+uiRepresentation :: Board -> [[Cell]]
+uiRepresentation board =
     map (map (\cell -> case cell of
                                0 -> Empty
                                1 -> X

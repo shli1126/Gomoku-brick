@@ -1,22 +1,23 @@
-module Type (Game(..), Board(..), Player(..)) where
+module Type (module Type) where
 
-
--- | Represents the game board for Five in a Row.
--- | It is a newtype that wraps a nested list of integers,
--- | where each integer represents a cell on the board.
--- | 0 represents an empty cell, 1 represents X, and 2 represents O.
-newtype Board = Board [[Int]]
-
+-- Board[i][j] == -1 : Empty slot
+-- Board[i][j] >= 0  : Player index
+-- Maybe require a newtype for Board Slot, and maybe not
+type Board = [[Int]]
 
 data Game = Game
-  { cursor :: (Int, Int)
+  { cursor :: (Int, Int) -- (x, y) s.t. board !! y !! x is pos
   , board :: Board
   , players :: [Player]
   , prev :: Maybe Game
+  , nextPlayer :: Int -- player to take action
   }
 
 data Player = Player
   { name :: String
   , boomsLeft :: Int
+  , score :: Int
   }
 
+data Direction = Up | Down | Left | Right deriving (Show)
+data DoStatus = Valid | Invalid | Win deriving (Show)
