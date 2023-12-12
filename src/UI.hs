@@ -5,17 +5,19 @@ module UI
     ( drawUI
     , emptyGrid
     , theMap  -- Make sure this is exported
+    , runUI
     ) where
         
 import Brick
 import Brick.Widgets.Border
 import Brick.Widgets.Center
 import Brick.Widgets.Border.Style (BorderStyle, unicodeBold)
-import Brick.Widgets.Core (hLimit, vLimit)
+import Brick.Widgets.Core (hLimit, vLimit, Padding)
 import Brick.AttrMap (attrMap, AttrMap)
 import Brick.Util (on)
 import Graphics.Vty.Attributes (defAttr, bold, withStyle)
-import Type 
+import Type (Player, Board)
+
 
 -- Define custom attribute for larger caption
 captionAttr :: AttrName
@@ -24,10 +26,14 @@ captionAttr = attrName "caption"
 -- Define the cell and grid types
 data Cell = Empty | X | O
 
+
+
+
 theMap :: AttrMap
 theMap = attrMap defAttr
     [ (captionAttr, withStyle defAttr bold)
     ]
+
 
 -- Function to print a single Cell
 printCell :: Cell -> String
@@ -70,17 +76,54 @@ uiRepresentation board =
                                1 -> X
                                _ -> O)) board
 
--- Function to draw the entire UI
--- drawUI :: Grid -> [Widget ()]
--- drawUI grid = [center $ drawGrid grid]
-drawUI :: Board -> [Widget ()]
-drawUI board =
-    [center $ 
-        (withAttr captionAttr $ str "Five in a ROW") <=>
-        drawGrid (uiRepresentation board)
-    ]
-
 
 -- Styling for the borders (you can choose a different style)
 borderStyle :: BorderStyle
 borderStyle = unicodeBold
+
+
+
+currentPlayerString :: String -> String
+currentPlayerString name = "Current Player: " ++ name
+
+boomsLeftString :: String -> Int -> String
+boomsLeftString playerName count = "Boom left for " ++ playerName ++ ": " ++ show count
+
+paddedBox :: Int -> Widget n -> Widget n
+paddedBox padding content = 
+    vBox [ 
+        padTop (Pad padding) content 
+    ]
+
+
+-- Function to draw the entire UI
+drawUI :: Board -> Widget ()
+drawUI board =
+    center $
+        vBox [
+            withAttr captionAttr $ str "Five in a ROW",
+            drawGrid (uiRepresentation board),
+            vBox [  -- Change here to vBox for vertical alignment
+                paddedBox 1 $ str (currentPlayerString "Dummy Player 1"),
+                paddedBox 1 $ str (boomsLeftString "Dummy Player 1" 3),
+                paddedBox 1 $ str (boomsLeftString "Dummy Player 2" 2)
+            ]
+        ]
+
+
+
+testBoard :: [[Int]]
+testBoard = [[-1,1,-1,-1,-1,-1],
+                  [-1,-1,1,-1,-1,-1],
+                  [-1,-1,-1,1,-1,-1],
+                  [-1,-1,-1,-1,1,-1],
+                  [-1,-1,-1,-1,-1,1],
+                  [-1,-1,-1,-1,-1,-1]]
+
+
+runUI :: IO ()
+runUI = simpleMain (drawUI testBoard)
+
+
+
+
