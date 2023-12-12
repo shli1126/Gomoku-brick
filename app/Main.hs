@@ -1,6 +1,13 @@
-module Main (module Main) where
+module Main (main) where
 
+import Type
 import UI
+import Logic
+
+
 
 main :: IO ()
-main = startPoint
+main = runUI
+
+
+
