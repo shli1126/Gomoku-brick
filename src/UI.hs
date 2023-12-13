@@ -169,6 +169,7 @@ app = App
 
 
 handleEvent :: Game -> BrickEvent () e -> EventM () (Next Game)
+handleEvent game (VtyEvent (V.EvKey (V.KChar 'z') [V.MCtrl])) = halt game
 handleEvent game (VtyEvent (V.EvKey key [])) = case key of
   V.KUp  -> continue (moveCursor game T.Up)
   V.KDown -> continue (moveCursor game T.Down)
