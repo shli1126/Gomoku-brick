@@ -12,11 +12,16 @@ import Brick
 import Brick.Widgets.Border
 import Brick.Widgets.Center
 import Brick.Widgets.Border.Style (BorderStyle, unicodeBold)
-import Brick.Widgets.Core (hLimit, vLimit, Padding)
+import Brick.Widgets.Core (hLimit, vLimit)
 import Brick.AttrMap (attrMap, AttrMap)
 import Brick.Util (on)
+import Brick (Next)
 import Graphics.Vty.Attributes (defAttr, bold, withStyle)
-import Type (Player, Board)
+import Type (Player, Board, Game(..))
+import Type( Direction(..) )
+import Type as T
+import Logic
+import qualified Graphics.Vty as V
 
 
 -- Define custom attribute for larger caption
@@ -25,7 +30,6 @@ captionAttr = attrName "caption"
 
 -- Define the cell and grid types
 data Cell = Empty | X | O
-
 
 
 
@@ -72,7 +76,7 @@ emptyGrid = replicate 10 (replicate 10 Empty)
 uiRepresentation :: Board -> [[Cell]]
 uiRepresentation board =
     map (map (\cell -> case cell of
-                               0 -> Empty
+                               -1 -> Empty
                                1 -> X
                                _ -> O)) board
 
@@ -89,41 +93,96 @@ currentPlayerString name = "Current Player: " ++ name
 boomsLeftString :: String -> Int -> String
 boomsLeftString playerName count = "Boom left for " ++ playerName ++ ": " ++ show count
 
-paddedBox :: Int -> Widget n -> Widget n
-paddedBox padding content = 
-    vBox [ 
-        padTop (Pad padding) content 
-    ]
+-- paddedBox :: Int -> Widget n -> Widget n
+-- paddedBox  content = 
+--     vBox [ 
+--         padTop content 
+--     ]
 
 
 -- Function to draw the entire UI
-drawUI :: Board -> Widget ()
-drawUI board =
-    center $
-        vBox [
+-- drawUI :: Board -> Widget ()
+-- drawUI board =
+--     center $
+--         vBox [
+--             withAttr captionAttr $ str "Five in a ROW",
+--             drawGrid (uiRepresentation board),
+--             vBox [  -- Change here to vBox for vertical alignment
+--                  1 $ str (currentPlayerString "Dummy Player 1"),
+--                  1 $ str (boomsLeftString "Dummy Player 1" 3),
+--                  1 $ str (boomsLeftString "Dummy Player 2" 2)
+--             ]
+--         ]
+
+drawUI :: Game -> Widget ()
+drawUI game = 
+    let board = Type.board game -- Extract the board from the Game
+    in center $
+         vBox [
             withAttr captionAttr $ str "Five in a ROW",
             drawGrid (uiRepresentation board),
             vBox [  -- Change here to vBox for vertical alignment
-                paddedBox 1 $ str (currentPlayerString "Dummy Player 1"),
-                paddedBox 1 $ str (boomsLeftString "Dummy Player 1" 3),
-                paddedBox 1 $ str (boomsLeftString "Dummy Player 2" 2)
+                str (currentPlayerString "Dummy Player 1"),
+                str (boomsLeftString "Dummy Player 1" 3),
+                str (boomsLeftString "Dummy Player 2" 2)
             ]
         ]
 
 
 
 testBoard :: [[Int]]
-testBoard = [[-1,1,-1,-1,-1,-1],
-                  [-1,-1,1,-1,-1,-1],
-                  [-1,-1,-1,1,-1,-1],
-                  [-1,-1,-1,-1,1,-1],
-                  [-1,-1,-1,-1,-1,1],
+testBoard = [[-1, -1,-1,-1,-1,-1],
+                  [-1,-1, -1,-1,-1,-1],
+                  [-1,-1,-1, -1,-1,-1],
+                  [-1,-1,-1,-1, -1,-1],
+                  [-1,-1,-1,-1,-1, -1],
                   [-1,-1,-1,-1,-1,-1]]
 
 
-runUI :: IO ()
-runUI = simpleMain (drawUI testBoard)
+
+runUI :: IO Game
+runUI = defaultMain app (init1 10 ["Player1", "Player 2"])
 
 
+-- app :: App Game e ()
+-- app = App
+--   { appDraw         = \x -> (drawUI x)
+--   , appChooseCursor = neverShowCursor
+--   , appHandleEvent  = handleEvent
+--   , appStartEvent   = return ()
+--   , appAttrMap      = const theMap
+--   }
+
+-- Define showCursor function
+displayCursor game _ =
+    case cursor game of
+        (col, row) -> Just $ CursorLocation (Location col row)
+        _ -> Nothing
+
+
+
+app :: App Game e ()
+app = App
+  { appDraw         = \game -> [drawUI game]   -- Use the modified drawUI function
+  , appChooseCursor = displayCursor
+  , appHandleEvent  = handleEvent
+  , appStartEvent   = pure
+  , appAttrMap      = const theMap
+  }
+
+
+
+
+handleEvent :: Game -> BrickEvent () e -> EventM () (Next Game)
+handleEvent game (VtyEvent (V.EvKey key [])) = case key of
+  V.KUp  -> continue (moveCursor game T.Up)
+  V.KDown -> continue (moveCursor game T.Down)
+  V.KLeft -> continue (moveCursor game T.Left)
+  V.KRight -> continue (moveCursor game T.Right)
+  V.KChar 'u' -> continue (undo game)
+  V.KChar 'b' -> continue (fst $ boom game)
+  V.KEnter -> continue (fst $ dodo game)
+  _ -> continue game
+handleEvent game _ = continue game
 
 
