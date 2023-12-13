@@ -8,17 +8,12 @@ module UI
     , runUI
     ) where
         
-import Brick
+import Brick as B
 import Brick.Widgets.Border
 import Brick.Widgets.Center
 import Brick.Widgets.Border.Style (BorderStyle, unicodeBold)
-import Brick.Widgets.Core (hLimit, vLimit)
-import Brick.AttrMap (attrMap, AttrMap)
-import Brick.Util (on)
-import Brick (Next)
 import Graphics.Vty.Attributes (defAttr, bold, withStyle)
-import Type (Player, Board, Game(..))
-import Type( Direction(..) )
+import Type (Player, Board, Game(..), Direction(..) )
 import Type as T
 import Logic
 import qualified Graphics.Vty as V
@@ -28,33 +23,44 @@ import qualified Graphics.Vty as V
 captionAttr :: AttrName
 captionAttr = attrName "caption"
 
+
+
 -- Define the cell and grid types
 data Cell = Empty | X | O
 
+
+-- Define a new attribute for bold text
+boldTextAttr :: AttrName
+boldTextAttr = attrName "boldText"
 
 
 theMap :: AttrMap
 theMap = attrMap defAttr
     [ (captionAttr, withStyle defAttr bold)
+    , (boldTextAttr, withStyle defAttr bold) -- This makes the text bold
     ]
 
 
 -- Function to print a single Cell
 printCell :: Cell -> String
 printCell Empty = "     "
-printCell X     = "  X  "
-printCell O     = "  O  "
+printCell X     = " X  "
+printCell O     = " O  "
 
--- Function to create a widget for a single Cell
+
 drawCell :: Cell -> Widget ()
-drawCell cell = 
-    withBorderStyle borderStyle
-    $ border
-    $ hLimit 4 -- Reduced horizontal limit
-    $ vLimit 2 -- Reduced vertical limit
-    $ padAll 0
-    $ str
-    $ printCell cell
+drawCell cell =
+    let content = case cell of
+                    Empty -> str "     "
+                    X     -> withAttr boldTextAttr $ str " X "
+                    O     -> withAttr boldTextAttr $ str " O "
+    in withBorderStyle borderStyle
+       $ border
+       $ hLimit 3
+       $ vLimit 2
+       $ padAll 0
+       $ content  -- Use the content here
+
 
 -- Function to create a single row Widget
 drawRow :: [Cell] -> Widget ()
@@ -93,26 +99,6 @@ currentPlayerString name = "Current Player: " ++ name
 boomsLeftString :: String -> Int -> String
 boomsLeftString playerName count = "Boom left for " ++ playerName ++ ": " ++ show count
 
--- paddedBox :: Int -> Widget n -> Widget n
--- paddedBox  content = 
---     vBox [ 
---         padTop content 
---     ]
-
-
--- Function to draw the entire UI
--- drawUI :: Board -> Widget ()
--- drawUI board =
---     center $
---         vBox [
---             withAttr captionAttr $ str "Five in a ROW",
---             drawGrid (uiRepresentation board),
---             vBox [  -- Change here to vBox for vertical alignment
---                  1 $ str (currentPlayerString "Dummy Player 1"),
---                  1 $ str (boomsLeftString "Dummy Player 1" 3),
---                  1 $ str (boomsLeftString "Dummy Player 2" 2)
---             ]
---         ]
 
 drawUI :: Game -> Widget ()
 drawUI game = 
@@ -130,34 +116,43 @@ drawUI game =
 
 
 
-testBoard :: [[Int]]
-testBoard = [[-1, -1,-1,-1,-1,-1],
-                  [-1,-1, -1,-1,-1,-1],
-                  [-1,-1,-1, -1,-1,-1],
-                  [-1,-1,-1,-1, -1,-1],
-                  [-1,-1,-1,-1,-1, -1],
-                  [-1,-1,-1,-1,-1,-1]]
-
-
-
 runUI :: IO Game
 runUI = defaultMain app (init1 10 ["Player1", "Player 2"])
 
 
--- app :: App Game e ()
--- app = App
---   { appDraw         = \x -> (drawUI x)
---   , appChooseCursor = neverShowCursor
---   , appHandleEvent  = handleEvent
---   , appStartEvent   = return ()
---   , appAttrMap      = const theMap
---   }
+cursorPos :: Game -> Location
+cursorPos game = let (x, y) = cursor game in Location (leftOffset + screenX x, topOffset + screenY y)
 
--- Define showCursor function
-displayCursor game _ =
-    case cursor game of
-        (col, row) -> Just $ CursorLocation (Location col row)
-        _ -> Nothing
+-- These offsets should represent the starting point of your grid on the screen.
+topOffset :: Int
+topOffset = 18 -- Number of lines before the board starts, adjust accordingly
+
+leftOffset :: Int
+leftOffset = 84 -- Number of characters from the left of the screen, adjust accordingly
+
+-- Assume each cell is 5 characters wide including the borders and padding
+cellWidth :: Int
+cellWidth = 5 -- Change this according to your actual cell width
+
+-- Assume each cell is 3 characters tall including the borders and padding
+cellHeight :: Int
+cellHeight = 3 -- Change this according to your actual cell height
+
+-- Converts game coordinates to screen coordinates
+screenX :: Int -> Int
+screenX x = x * cellWidth 
+
+screenY :: Int -> Int
+screenY y = y * cellHeight
+
+
+displayCursor :: Game -> [CursorLocation n] -> Maybe (CursorLocation n)
+displayCursor game cursors = Just $ CursorLocation
+    { cursorLocation = cursorPos game
+    , cursorLocationName = Nothing
+    , cursorLocationVisible = True
+    }
+
 
 
 
@@ -184,5 +179,7 @@ handleEvent game (VtyEvent (V.EvKey key [])) = case key of
   V.KEnter -> continue (fst $ dodo game)
   _ -> continue game
 handleEvent game _ = continue game
+
+
 
 
