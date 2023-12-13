@@ -6,7 +6,7 @@ import Logic
 
 
 
-main :: IO ()
+main :: IO Game
 main = runUI
 
 

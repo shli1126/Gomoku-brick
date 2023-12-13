@@ -13,6 +13,8 @@ data Game = Game
   , nextPlayer :: Int -- player to take action
   }
 
+
+
 data Player = Player
   { name :: String
   , boomsLeft :: Int
