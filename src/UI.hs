@@ -105,12 +105,18 @@ boomsLeftStringPlayer2 game = "Boom left for " ++ (name player) ++ ": " ++ show 
   where
     player = players game !! 1
 
+displayWinner :: Game -> String
+displayWinner game = if isWin (board game)
+  then (name player) ++ " wins!!!"
+  else ""
+  where
+    player = players game !! nextPlayer game
+
 -- paddedBox :: Int -> Widget n -> Widget n
 -- paddedBox  content = 
 --     vBox [ 
 --         padTop content 
 --     ]
-
 
 -- Function to draw the entire UI
 -- drawUI :: Board -> Widget ()
@@ -136,10 +142,10 @@ drawUI game =
             vBox [  -- Change here to vBox for vertical alignment
                 str (currentPlayerString game),
                 str (boomsLeftStringPlayer1 game),
-                str (boomsLeftStringPlayer2 game)
+                str (boomsLeftStringPlayer2 game),
+                str (displayWinner game)
             ]
         ]
-
 
 
 testBoard :: [[Int]]
@@ -155,7 +161,6 @@ testBoard = [[-1, -1,-1,-1,-1,-1],
 runUI :: IO Game
 runUI = defaultMain app (init1 10 ["Player 1", "Player 2"])
 
-
 -- app :: App Game e ()
 -- app = App
 --   { appDraw         = \x -> (drawUI x)
@@ -164,6 +169,7 @@ runUI = defaultMain app (init1 10 ["Player 1", "Player 2"])
 --   , appStartEvent   = return ()
 --   , appAttrMap      = const theMap
 --   }
+
 
 -- Define showCursor function
 -- displayCursor game _ =
