@@ -1,17 +1,16 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Eta reduce" #-}
 {-# HLINT ignore "Use lambda-case" #-}
-module UI 
+module UI
     ( drawUI
-    , emptyGrid
     , theMap  -- Make sure this is exported
     , runUI
     ) where
-        
+
 import Brick as B
 import Brick.Widgets.Border
 import Brick.Widgets.Center
-import Brick.Widgets.Border.Style (BorderStyle, unicodeBold)
+import Brick.Widgets.Border.Style
 import Graphics.Vty.Attributes (defAttr, bold, withStyle)
 import Type (Player, Board, Game(..), Direction(..) )
 import Type as T
@@ -26,7 +25,8 @@ captionAttr = attrName "caption"
 
 
 -- Define the cell and grid types
-data Cell = Empty | X | O
+data Cell = Empty | X | O deriving (Show, Eq)
+data CellCursor = CC {cell :: Cell, strong :: Bool} deriving (Show, Eq)
 
 
 -- Define a new attribute for bold text
@@ -48,13 +48,13 @@ printCell X     = " X  "
 printCell O     = " O  "
 
 
-drawCell :: Cell -> Widget ()
-drawCell cell =
-    let content = case cell of
+drawCell :: CellCursor -> Widget ()
+drawCell cellcursor =
+    let content = case cell cellcursor of
                     Empty -> str "     "
                     X     -> withAttr boldTextAttr $ str " X "
                     O     -> withAttr boldTextAttr $ str " O "
-    in withBorderStyle borderStyle
+    in withBorderStyle (borderStyle (strong cellcursor))
        $ border
        $ hLimit 3
        $ vLimit 2
@@ -63,20 +63,17 @@ drawCell cell =
 
 
 -- Function to create a single row Widget
-drawRow :: [Cell] -> Widget ()
+drawRow :: [CellCursor] -> Widget ()
 drawRow cells = hBox $ map drawCell cells
 
 -- Function to create the grid Widget
-drawGrid :: [[Cell]] -> Widget ()
+drawGrid :: [[CellCursor]] -> Widget ()
 drawGrid grid =
-    withBorderStyle borderStyle
+    withBorderStyle (borderStyle False)
         . border
         . vBox $ map drawRow grid
 
 
--- Example grid (10x10 empty cells)
-emptyGrid :: [[Cell]]
-emptyGrid = replicate 10 (replicate 10 Empty)
 
 -- try to fit the board data type into the UI
 uiRepresentation :: Board -> [[Cell]]
@@ -88,8 +85,8 @@ uiRepresentation board =
 
 
 -- Styling for the borders (you can choose a different style)
-borderStyle :: BorderStyle
-borderStyle = unicodeBold
+borderStyle :: Bool -> BorderStyle
+borderStyle isStrong = if isStrong then unicodeBold else unicode
 
 
 
@@ -118,14 +115,21 @@ displayWinner game = if isWin (board game)
   where
     player = players game !! nextPlayer game
 
+mapWithIndex :: ((Int, Int) -> a -> b) -> [[a]] -> [[b]]
+mapWithIndex f = zipWith (\y row -> zipWith (\x a -> f (x, y) a) [0..] row) [0..]
 
 drawUI :: Game -> Widget ()
-drawUI game = 
+drawUI game =
     let board = Type.board game -- Extract the board from the Game
     in center $
          vBox [
             withAttr captionAttr $ str "Five in a ROW",
-            drawGrid (uiRepresentation board),
+            let cells = uiRepresentation board
+                cursorX = fst (cursor game)
+                cursorY = snd (cursor game)
+                cellCursors = [[CC cell (x == cursorX && y == cursorY) | (x, cell) <- zip [0..] row] | (y, row) <- zip [0..] cells]
+            in
+                drawGrid cellCursors,
             vBox [  -- Change here to vBox for vertical alignment
                 str (currentPlayerString game),
                 str (boomsLeftStringPlayer1 game),
@@ -166,7 +170,7 @@ cellHeight = 3 -- Change this according to your actual cell height
 
 -- Converts game coordinates to screen coordinates
 screenX :: Int -> Int
-screenX x = x * cellWidth 
+screenX x = x * cellWidth
 
 screenY :: Int -> Int
 screenY y = y * cellHeight
@@ -176,7 +180,7 @@ displayCursor :: Game -> [CursorLocation n] -> Maybe (CursorLocation n)
 displayCursor game cursors = Just $ CursorLocation
     { cursorLocation = cursorPos game
     , cursorLocationName = Nothing
-    , cursorLocationVisible = True
+    , cursorLocationVisible = False
     }
 
 
@@ -185,7 +189,7 @@ displayCursor game cursors = Just $ CursorLocation
 app :: App Game e ()
 app = App
   { appDraw         = \game -> [drawUI game]   -- Use the modified drawUI function
-  , appChooseCursor = displayCursor
+  , appChooseCursor =  displayCursor
   , appHandleEvent  = handleEvent
   , appStartEvent   = pure
   , appAttrMap      = const theMap
