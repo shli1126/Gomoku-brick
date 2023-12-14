@@ -153,7 +153,7 @@ testBoard = [[-1, -1,-1,-1,-1,-1],
 
 
 runUI :: IO Game
-runUI = defaultMain app (init1 10 ["Player1", "Player 2"])
+runUI = defaultMain app (init1 10 ["Player 1", "Player 2"])
 
 
 -- app :: App Game e ()
