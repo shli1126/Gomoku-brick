@@ -87,11 +87,23 @@ borderStyle = unicodeBold
 
 
 
-currentPlayerString :: String -> String
-currentPlayerString name = "Current Player: " ++ name
+currentPlayerString :: Game -> String
+currentPlayerString game = "Current Player: " ++ name player
+  where
+    player = players game !! nextPlayer game
 
-boomsLeftString :: String -> Int -> String
-boomsLeftString playerName count = "Boom left for " ++ playerName ++ ": " ++ show count
+-- boomsLeftString :: String -> Int -> String
+-- boomsLeftString playerName count = "Boom left for " ++ playerName ++ ": " ++ show count
+
+boomsLeftStringPlayer1 :: Game -> String
+boomsLeftStringPlayer1 game = "Boom left for " ++ (name player) ++ ": " ++ show (boomsLeft player)
+  where
+    player = players game !! 0
+
+boomsLeftStringPlayer2 :: Game -> String
+boomsLeftStringPlayer2 game = "Boom left for " ++ (name player) ++ ": " ++ show (boomsLeft player)
+  where
+    player = players game !! 1
 
 -- paddedBox :: Int -> Widget n -> Widget n
 -- paddedBox  content = 
@@ -122,9 +134,9 @@ drawUI game =
             withAttr captionAttr $ str "Five in a ROW",
             drawGrid (uiRepresentation board),
             vBox [  -- Change here to vBox for vertical alignment
-                str (currentPlayerString "Dummy Player 1"),
-                str (boomsLeftString "Dummy Player 1" 3),
-                str (boomsLeftString "Dummy Player 2" 2)
+                str (currentPlayerString game),
+                str (boomsLeftStringPlayer1 game),
+                str (boomsLeftStringPlayer2 game)
             ]
         ]
 
@@ -154,17 +166,17 @@ runUI = defaultMain app (init1 10 ["Player1", "Player 2"])
 --   }
 
 -- Define showCursor function
-displayCursor game _ =
-    case cursor game of
-        (col, row) -> Just $ CursorLocation (Location col row)
-        _ -> Nothing
+-- displayCursor game _ =
+--     case cursor game of
+--         (col, row) -> Just $ CursorLocation (Location col row)
+--         _ -> Nothing
 
 
 
 app :: App Game e ()
 app = App
   { appDraw         = \game -> [drawUI game]   -- Use the modified drawUI function
-  , appChooseCursor = displayCursor
+  , appChooseCursor = neverShowCursor
   , appHandleEvent  = handleEvent
   , appStartEvent   = pure
   , appAttrMap      = const theMap
