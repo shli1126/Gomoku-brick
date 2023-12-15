@@ -78,48 +78,31 @@ uiRepresentation board =
 borderStyle :: Bool -> BorderStyle
 borderStyle isStrong = if isStrong then unicodeBold else unicode
 
-currentPlayerString :: Game -> String
-currentPlayerString game = "Current Player: " ++ name player ++ [" (O)", " (X)"] !! nextPlayer game
-  where
-    player = players game !! nextPlayer game
-
 
 boomsLeftStringPlayer :: Game -> Int -> String
-boomsLeftStringPlayer game n = "Player " ++ name player ++ " has " ++ show (boomsLeft player) ++ if boomsLeft player == 1 then " boom left" else " booms left"
+boomsLeftStringPlayer game n = name player ++ " has " ++ show (boomsLeft player) ++ if boomsLeft player == 1 then " boom left" else " booms left"
   where
     player = players game !! n
 
 
--- displayWinner :: Game -> String
--- displayWinner game = if isWin (board game)
---   then (name player) ++ " wins!!!"
---   else ""
---   where
---     player = players game !! nextPlayer game
-
--- displayTie :: Game -> String
--- displayTie game = if isTie (board game)
---   then "Tie!!!"
---   else ""
-
 displayStatus :: Game -> String
 displayStatus game
-  | isWin (board game) = name player ++ " wins!!!"
+  | isWin (board game) = name player ++ [" (O)", " (X)"] !! nextPlayer game ++ " wins!!!"
   | isTie (board game) = "Tie!!!"
-  | otherwise = ""
+  | otherwise = "Current player: " ++ name player ++ [" (O)", " (X)"] !! nextPlayer game
   where
     player = players game !! nextPlayer game
 
 
 displayScorePlayer :: Game -> Int -> String
-displayScorePlayer game n = name player ++ " score: " ++ show (score player)
+displayScorePlayer game n = "Total score of " ++ name player ++ ": " ++ show (score player)
   where
     player = players game !! n
 
 displayRules :: Game -> String
 displayRules game = if isWin (board game) || isTie (board game)
-  then "\nPress r to start a new game         \nPress Ctrl-z to quit \n \n \n \n"
-  else "Rules: \n  Place stones to form an unbroken row to win. \n  1. Use arrow keys to move the cursor \n  2. Press enter to place a stone \n  3. Press b to use a boom \n  4. Press u to undo \n  5. Press Ctrl-z to quit"
+  then "Press R to start a new game                \nPress Ctrl-Z to quit               \n                                     \n                     \n               \n                  \n"
+  else "Place stones to form an unbroken row to win\nPress arrow keys to move the cursor\nPress enter or space to place a stone\nPress B to use a boom\nPress U to undo\nPress Ctrl-Z to quit"
 
 drawUI :: Game -> Widget ()
 drawUI game =
@@ -134,13 +117,14 @@ drawUI game =
             in
                 drawGrid cellCursors,
             vBox [
-                str (currentPlayerString game),
+                str (displayStatus game),
+                str " ",
                 str (boomsLeftStringPlayer game 0),
                 str (boomsLeftStringPlayer game 1),
+                str " ",
                 str (displayScorePlayer game 0),
                 str (displayScorePlayer game 1),
                 str " ",
-                str (displayStatus game),
                 str (displayRules game)
             ]
         ]
@@ -189,6 +173,7 @@ handleEvent game (VtyEvent (V.EvKey key [])) =
     V.KRight -> continue (moveCursor game T.Right)
     V.KChar 'u' -> continue (undo game)
     V.KChar 'b' -> continue (fst $ boom game)
+    V.KChar ' ' -> continue (fst $ dodo game)
     V.KEnter -> continue (fst $ dodo game)
     _ -> continue game)
 handleEvent game _ = continue game
