@@ -108,7 +108,8 @@ displayScorePlayer game n = name player ++ " score: " ++ show (score player)
   where
     player = players game !! n
 
-
+displayRules :: Game -> String
+displayRules game = if isWin (board game) || isTie (board game) then "Press 'r' to restart the game." else "Rules: \n Place stones to form an unbroken row to win. \n 1. Use arrow keys to move the cursor \n 2. Press enter to place a piece \n 3. Press b to use a boom \n 4. Press u to undo \n 5. Press ctrl-z to quit"
 
 drawUI :: Game -> Widget ()
 drawUI game =
@@ -130,7 +131,7 @@ drawUI game =
                 str (displayScorePlayer game 1),
                 str (displayWinner game),
                 str (displayTie game),
-                str "Rules: \n Place stones to form an unbroken row to win. \n 1. Use arrow keys to move the cursor \n 2. Press enter to place a piece \n 3. Press b to use a boom \n 4. Press u to undo \n 5. Press ctrl-z to quit"
+                str (displayRules game)
             ]
         ]
 
