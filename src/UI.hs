@@ -137,8 +137,11 @@ drawUI game =
         ]
 
 
-runUI :: IO Game
-runUI = defaultMain app (init1 10 ["Player 1", "Player 2"])
+-- runUI :: IO Game
+-- runUI = defaultMain app (init1 10 ["Player 1", "Player 2"])
+runUI :: [String] -> IO Game
+runUI playerNames = defaultMain app (init1 10 playerNames)
+
 
 
 app :: App Game e ()
