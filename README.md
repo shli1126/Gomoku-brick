@@ -61,7 +61,8 @@ When implementing the online mode, we will build our own server
 On the main page, each user can enter their username. A player can choose the grid size of the game as well as whether they want to play locally or online.
 In a player’s turn, they can use arrow keys to move the cursor on the board, and press the enter key to place a stone on an empty intersection or press the delete key to remove all stones in the 2×2 matrix to the lower right of the cursor (called “boom”).
 
-![UIExample](https://github.com/lukechen2/cse-230-proj/assets/146805418/e769f6a4-2b88-48fe-b77d-61074532d4c4)
+![image](https://github.com/lukechen2/cse-230-proj/assets/146805418/a90002c7-3d05-40b5-85ea-e5722b52ce29)
+
 
 
 #### Challenges and Expectations:
