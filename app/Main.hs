@@ -4,13 +4,29 @@ import Type
 import UI
 import Logic
 import System.IO (hFlush, stdout)  -- Ensure this import is present
+import Text.Read (readMaybe)
 
 
 main :: IO Game
 main = do
+    size <- getBoardSize
     name1 <- getPlayerName "Player 1"
     name2 <- getPlayerName "Player 2"
-    runUI [name1, name2]
+    runUI size [name1, name2]
+
+
+getBoardSize :: IO Int
+getBoardSize = do
+    putStrLn "Enter the size of the board (between 5 and 20):"
+    hFlush stdout
+    input <- getLine
+    let maybeSize = readMaybe input :: Maybe Int
+    case maybeSize of
+        Just size | size >= 5 && size <= 20 -> return size
+        _ -> do
+            putStrLn "Invalid size. Please enter a number between 5 and 20."
+            getBoardSize
+
 
 getPlayerName :: String -> IO String
 getPlayerName player = do
