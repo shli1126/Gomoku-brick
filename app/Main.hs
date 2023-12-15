@@ -9,6 +9,7 @@ import Text.Read (readMaybe)
 
 main :: IO Game
 main = do
+    putStrLn asciiArt
     size <- getBoardSize
     name1 <- getPlayerName "Player 1"
     name2 <- getPlayerName "Player 2"
@@ -40,10 +41,11 @@ getPlayerName player = do
         else return name
 
 
-
-
-
-
-
-
-
+asciiArt :: String
+asciiArt =
+ " _                                 \n\
+  \| |__     ___     ___    _ __ ___  \n\
+  \| '_ \\   / _ \\   / _ \\  | '_ ` _ \\ \n\
+  \| |_) | | (_) | | (_) | | | | | | |\n\
+  \|_.__/   \\___/   \\___/  |_| |_| |_|\n\
+  \                                  "
