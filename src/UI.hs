@@ -78,8 +78,6 @@ uiRepresentation board =
 borderStyle :: Bool -> BorderStyle
 borderStyle isStrong = if isStrong then unicodeBold else unicode
 
-
-
 currentPlayerString :: Game -> String
 currentPlayerString game = "Current Player: " ++ name player
   where
@@ -131,16 +129,14 @@ drawUI game =
                 str (displayScorePlayer game 0),
                 str (displayScorePlayer game 1),
                 str (displayWinner game),
-                str (displayTie game)
+                str (displayTie game),
+                str "Rules: \n Place stones to form an unbroken row to win. \n 1. Use arrow keys to move the cursor \n 2. Press enter to place a piece \n 3. Press b to use a boom \n 4. Press u to undo \n 5. Press ctrl-z to quit"
             ]
         ]
 
 
-
 runUI :: Int -> [String] -> IO Game
 runUI size playerNames = defaultMain app (init1 size playerNames)
-
-
 
 app :: App Game e ()
 app = App
@@ -150,7 +146,6 @@ app = App
   , appStartEvent   = pure
   , appAttrMap      = const theMap
   }
-
 
 
 -- handleEvent :: Game -> BrickEvent () e -> EventM () (Next Game)
