@@ -84,6 +84,8 @@ switchPlayer game = (currentPlayer + 1) `mod` playerCnt
 updateBoard :: [[a]] -> (Int, Int) -> a -> [[a]]
 updateBoard board (x, y) player = take y board ++ [take x (board !! y) ++ [player] ++ drop (x + 1) (board !! y)] ++ drop (y + 1) board
 
+isTie :: Board -> Bool
+isTie board = all (all (>= 0)) board
 
 -- check if there is a sequence of more than 5 same color
 isWin :: Board -> Bool

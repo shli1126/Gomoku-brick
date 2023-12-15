@@ -32,47 +32,40 @@ boldTextAttr :: AttrName
 boldTextAttr = attrName "boldText"
 
 
+-- creates a new attribute map with a default attribute and a list of specific attribute mappings
 theMap :: AttrMap
 theMap = attrMap defAttr
     [ (captionAttr, withStyle defAttr bold)
-    , (boldTextAttr, withStyle defAttr bold) -- This makes the text bold
+    , (boldTextAttr, withStyle defAttr bold)
     ]
 
 
--- Function to print a single Cell
-printCell :: Cell -> String
-printCell Empty = "     "
-printCell X     = " X  "
-printCell O     = " O  "
-
-
+-- First draw the cell
 drawCell :: CellCursor -> Widget ()
 drawCell cellcursor =
     let content = case cell cellcursor of
-                    Empty -> str "     "
-                    X     -> withAttr boldTextAttr $ str " X "
-                    O     -> withAttr boldTextAttr $ str " O "
+                    Empty -> str "   "
+                    X -> withAttr boldTextAttr (str " X ")
+                    O -> withAttr boldTextAttr (str " O ")
     in withBorderStyle (borderStyle (strong cellcursor))
        $ border
        $ hLimit 3
        $ vLimit 2
-       $ padAll 0
-       $ content  -- Use the content here
+       $ content
 
 
 -- Function to create a single row Widget
+-- applies the drawCell function to each CellCursor in cells
+-- hBox takes a list of Widgets and arranges them horizontally side by side
 drawRow :: [CellCursor] -> Widget ()
 drawRow cells = hBox $ map drawCell cells
 
 -- Function to create the grid Widget
 drawGrid :: [[CellCursor]] -> Widget ()
-drawGrid grid =
-    withBorderStyle (borderStyle False)
-        . border
-        . vBox $ map drawRow grid
+drawGrid grid = withBorderStyle (borderStyle True) . border . vBox $ map drawRow grid
 
 
--- try to fit the board data type into the UI
+-- fit the board data type into the UI
 uiRepresentation :: Board -> [[Cell]]
 uiRepresentation board =
     map (map (\cell -> case cell of
@@ -106,6 +99,11 @@ displayWinner game = if isWin (board game)
   where
     player = players game !! nextPlayer game
 
+displayTie :: Game -> String
+displayTie game = if isTie (board game)
+  then "Tie!!!"
+  else ""
+
 
 displayScorePlayer :: Game -> Int -> String
 displayScorePlayer game n = name player ++ " score: " ++ show (score player)
@@ -116,7 +114,7 @@ displayScorePlayer game n = name player ++ " score: " ++ show (score player)
 
 drawUI :: Game -> Widget ()
 drawUI game =
-    let board = Type.board game -- Extract the board from the Game
+    let board = Type.board game
     in center $
          vBox [
             withAttr captionAttr $ str "Five in a ROW",
@@ -126,19 +124,19 @@ drawUI game =
                 cellCursors = [[CC cell (x == cursorX && y == cursorY) | (x, cell) <- zip [0..] row] | (y, row) <- zip [0..] cells]
             in
                 drawGrid cellCursors,
-            vBox [  -- Change here to vBox for vertical alignment
+            vBox [
                 str (currentPlayerString game),
                 str (boomsLeftStringPlayer game 0),
                 str (boomsLeftStringPlayer game 1),
-                str (displayWinner game),
                 str (displayScorePlayer game 0),
-                str (displayScorePlayer game 1)
+                str (displayScorePlayer game 1),
+                str (displayWinner game),
+                str (displayTie game)
             ]
         ]
 
 
--- runUI :: [String] -> IO Game
--- runUI playerNames = defaultMain app (init1 10 playerNames)
+
 runUI :: Int -> [String] -> IO Game
 runUI size playerNames = defaultMain app (init1 size playerNames)
 
@@ -146,8 +144,8 @@ runUI size playerNames = defaultMain app (init1 size playerNames)
 
 app :: App Game e ()
 app = App
-  { appDraw         = \game -> [drawUI game]   -- Use the modified drawUI function
-  , appChooseCursor =  neverShowCursor
+  { appDraw         = \game -> [drawUI game]
+  , appChooseCursor = neverShowCursor
   , appHandleEvent  = handleEvent
   , appStartEvent   = pure
   , appAttrMap      = const theMap
@@ -155,13 +153,30 @@ app = App
 
 
 
+-- handleEvent :: Game -> BrickEvent () e -> EventM () (Next Game)
+-- handleEvent game (VtyEvent (V.EvKey (V.KChar 'z') [V.MCtrl])) = halt game
+-- handleEvent game (VtyEvent (V.EvKey key [])) = 
+--   if isWin (board game)
+--   then case key of
+--     V.KChar 'r' -> continue (reset game)
+--     _ -> continue game
+--   else case key of
+--     V.KUp  -> continue (moveCursor game T.Up)
+--     V.KDown -> continue (moveCursor game T.Down)
+--     V.KLeft -> continue (moveCursor game T.Left)
+--     V.KRight -> continue (moveCursor game T.Right)
+--     V.KChar 'u' -> continue (undo game)
+--     V.KChar 'b' -> continue (fst $ boom game)
+--     V.KEnter -> continue (fst $ dodo game)
+--     _ -> continue game
+-- handleEvent game _ = continue game
+
 handleEvent :: Game -> BrickEvent () e -> EventM () (Next Game)
 handleEvent game (VtyEvent (V.EvKey (V.KChar 'z') [V.MCtrl])) = halt game
-handleEvent game (VtyEvent (V.EvKey key [])) = if isWin (board game)
-  then case key of
-    V.KChar 'r' -> continue (reset game)
-    _ -> continue game
-  else case key of
+handleEvent game (VtyEvent (V.EvKey key [])) =
+  if isTie (board game) || isWin (board game) then (case key of
+            V.KChar 'r' -> continue (reset game)
+            _ -> continue game) else (case key of
     V.KUp  -> continue (moveCursor game T.Up)
     V.KDown -> continue (moveCursor game T.Down)
     V.KLeft -> continue (moveCursor game T.Left)
@@ -169,7 +184,7 @@ handleEvent game (VtyEvent (V.EvKey key [])) = if isWin (board game)
     V.KChar 'u' -> continue (undo game)
     V.KChar 'b' -> continue (fst $ boom game)
     V.KEnter -> continue (fst $ dodo game)
-    _ -> continue game
+    _ -> continue game)
 handleEvent game _ = continue game
 
 
