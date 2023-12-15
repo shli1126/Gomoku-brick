@@ -79,28 +79,36 @@ borderStyle :: Bool -> BorderStyle
 borderStyle isStrong = if isStrong then unicodeBold else unicode
 
 currentPlayerString :: Game -> String
-currentPlayerString game = "Current Player: " ++ name player
+currentPlayerString game = "Current Player: " ++ name player ++ [" (O)", " (X)"] !! nextPlayer game
   where
     player = players game !! nextPlayer game
 
 
 boomsLeftStringPlayer :: Game -> Int -> String
-boomsLeftStringPlayer game n = "Boom left for " ++ name player ++ ": " ++ show (boomsLeft player)
+boomsLeftStringPlayer game n = "Player " ++ name player ++ " has " ++ show (boomsLeft player) ++ if boomsLeft player == 1 then " boom left" else " booms left"
   where
     player = players game !! n
 
 
-displayWinner :: Game -> String
-displayWinner game = if isWin (board game)
-  then (name player) ++ " wins!!!"
-  else ""
+-- displayWinner :: Game -> String
+-- displayWinner game = if isWin (board game)
+--   then (name player) ++ " wins!!!"
+--   else ""
+--   where
+--     player = players game !! nextPlayer game
+
+-- displayTie :: Game -> String
+-- displayTie game = if isTie (board game)
+--   then "Tie!!!"
+--   else ""
+
+displayStatus :: Game -> String
+displayStatus game
+  | isWin (board game) = name player ++ " wins!!!"
+  | isTie (board game) = "Tie!!!"
+  | otherwise = ""
   where
     player = players game !! nextPlayer game
-
-displayTie :: Game -> String
-displayTie game = if isTie (board game)
-  then "Tie!!!"
-  else ""
 
 
 displayScorePlayer :: Game -> Int -> String
@@ -109,7 +117,9 @@ displayScorePlayer game n = name player ++ " score: " ++ show (score player)
     player = players game !! n
 
 displayRules :: Game -> String
-displayRules game = if isWin (board game) || isTie (board game) then "Press 'r' to restart the game." else "Rules: \n Place stones to form an unbroken row to win. \n 1. Use arrow keys to move the cursor \n 2. Press enter to place a piece \n 3. Press b to use a boom \n 4. Press u to undo \n 5. Press ctrl-z to quit"
+displayRules game = if isWin (board game) || isTie (board game)
+  then "\nPress r to start a new game         \nPress Ctrl-z to quit \n \n \n \n"
+  else "Rules: \n  Place stones to form an unbroken row to win. \n  1. Use arrow keys to move the cursor \n  2. Press enter to place a stone \n  3. Press b to use a boom \n  4. Press u to undo \n  5. Press Ctrl-z to quit"
 
 drawUI :: Game -> Widget ()
 drawUI game =
@@ -129,8 +139,8 @@ drawUI game =
                 str (boomsLeftStringPlayer game 1),
                 str (displayScorePlayer game 0),
                 str (displayScorePlayer game 1),
-                str (displayWinner game),
-                str (displayTie game),
+                str " ",
+                str (displayStatus game),
                 str (displayRules game)
             ]
         ]
