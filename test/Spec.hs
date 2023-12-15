@@ -1,6 +1,7 @@
 
 import Test.HUnit
 import Logic
+import Type
 -- Assuming the definitions of isWin and updateBoard are somewhere in your code
 
 -- Test cases
@@ -16,7 +17,7 @@ test4 = TestCase (assertEqual "" True (isWin testDiag3Board))
 
 -- Test List
 tests :: Test
-tests = TestList [TestLabel "test1" test1,  test2,  test3, test4, test5, testTie1]
+tests = TestList [TestLabel "test1" test1,  test2,  test3, test4, test5, testTie1, testBoomUnchanged1, testBoom1]
 
 -- Main method to run the tests
 main :: IO Counts
@@ -74,3 +75,21 @@ testTie = [[0,1,0,1,0,1],
            [1,0,1,0,1,0]]
 
 testTie1 = TestCase (assertEqual "" True (isTie testTie))
+
+
+
+mkgame :: [[Int]] -> (Int, Int) -> Game
+mkgame board1 cursor1 = game {board = board1, cursor = cursor1}
+        where game = init1 (length board1) ["p1", "p2"]
+    
+testBoom :: Board
+testBoom = board $ fst $ boom (mkgame testTie (1,1))
+
+
+afterTestBoom =  [[0,1,0,1,0,1],[1,-1,-1,0,1,0],[0,-1,-1,1,0,1],[1,0,1,0,1,0],[0,1,0,1,0,1],[1,0,1,0,1,0]]
+
+testBoom1 = TestCase (assertEqual "" afterTestBoom testBoom)
+
+testBoomUnchanged = board $ fst $ boom (mkgame testTie (5,5))
+
+testBoomUnchanged1 = TestCase (assertEqual "" testTie testBoomUnchanged)
