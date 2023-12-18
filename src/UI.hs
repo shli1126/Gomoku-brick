@@ -3,7 +3,7 @@
 {-# HLINT ignore "Use lambda-case" #-}
 module UI
     ( drawUI
-    , theMap  -- Make sure this is exported
+    , theMap 
     , runUI
     ) where
 
@@ -74,7 +74,6 @@ uiRepresentation board =
                                _ -> O)) board
 
 
--- Styling for the borders (you can choose a different style)
 borderStyle :: Bool -> BorderStyle
 borderStyle isStrong = if isStrong then unicodeBold else unicode
 
@@ -142,24 +141,6 @@ app = App
   , appAttrMap      = const theMap
   }
 
-
--- handleEvent :: Game -> BrickEvent () e -> EventM () (Next Game)
--- handleEvent game (VtyEvent (V.EvKey (V.KChar 'z') [V.MCtrl])) = halt game
--- handleEvent game (VtyEvent (V.EvKey key [])) = 
---   if isWin (board game)
---   then case key of
---     V.KChar 'r' -> continue (reset game)
---     _ -> continue game
---   else case key of
---     V.KUp  -> continue (moveCursor game T.Up)
---     V.KDown -> continue (moveCursor game T.Down)
---     V.KLeft -> continue (moveCursor game T.Left)
---     V.KRight -> continue (moveCursor game T.Right)
---     V.KChar 'u' -> continue (undo game)
---     V.KChar 'b' -> continue (fst $ boom game)
---     V.KEnter -> continue (fst $ dodo game)
---     _ -> continue game
--- handleEvent game _ = continue game
 
 handleEvent :: Game -> BrickEvent () e -> EventM () (Next Game)
 handleEvent game (VtyEvent (V.EvKey (V.KChar 'z') [V.MCtrl])) = halt game
