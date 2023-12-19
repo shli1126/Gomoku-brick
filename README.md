@@ -1,4 +1,4 @@
-## Brick Gomoku Game
+## Boomoku (Gomoku with Boom)
 
 **Group Member:**
 
@@ -45,8 +45,8 @@ A line application of our variant of Five in a Row based on the brick library. T
 
 ### Features:
 + Undo Move: Players can retract their moves.
-+ Online Support: Players can connect and compete with others over the internet or LAN.
-+ "Throwing Knife": Each player is granted a single opportunity to remove any pieces within a specified 2x2 square area on the board, potentially disrupting the opponent's progress or clearing a path for their own victory.
++ Online Support: Players can connect and compete with others over the internet or LAN. (Not implemented yet)
++ Boom: Each player is granted a single opportunity to remove any pieces within a specified 2x2 square area on the board, potentially disrupting the opponent's progress or clearing a path for their own victory.
 
 ### Update
 Friday 12/15 Milestone 3: Demonstration
@@ -73,4 +73,18 @@ The online version requires us to resolve some network issues. Functional langua
 Friday 11/17 Milestone 1: Registration and Proposal  
 Friday 12/1 Milestone 2: Updates  
 Friday 12/15 Milestone 3: Demonstration  
+
+
+
+### Acknowledgement
+
+We referenced [hic-hac-hoe](https://github.com/BlastWind/hic-hac-hoe/tree/main) on how to  draw a 2D grid board. We thought it was a general method for any grid board games.
+
+We referenced [cse230](https://github.com/lzhfromustc/cse230) on how to represent basic board game information. However, we individually developed all logical and testing functions to evaluate or update the game information. 
+
+A five-in-a-row (Gomoku) game is not a new idea. Our Boomoku game includes additional features beyond those found in a standard Gomoku game, such as:
++ New play rules: Boom
++ Convenience functions like undo, score board, information display, adjustable board size.
+
+
 
